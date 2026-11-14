@@ -20,7 +20,12 @@ def run(data):
         raise ValueError("O campo detalhes deve ser uma lista de objetos.")
     if not isinstance(data["relatos"], dict):
         raise ValueError("O campo relatos deve ser um objeto JSON.")
-    relatos = {texto(k): texto(v) for k, v in data["relatos"].items()}
+    relatos = {}
+    for nome, referencia in data["relatos"].items():
+        nome = texto(nome)
+        if nome in relatos:
+            raise ValueError("Nomes de relatos duplicados após remover espaços.")
+        relatos[nome] = texto(referencia)
     if len(relatos) < 2:
         raise ValueError("Inclua pelo menos dois relatos.")
     matriz, comuns, exclusivos = [], [], {}
