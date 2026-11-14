@@ -14,7 +14,18 @@ def textos(items):
 
 
 def run(data):
-    relatos = {texto(k): texto(v) for k, v in data["relatos"].items()}
+    if not isinstance(data, dict):
+        raise ValueError("A entrada deve ser um objeto JSON.")
+    if not isinstance(data["detalhes"], list) or any(not isinstance(item, dict) for item in data["detalhes"]):
+        raise ValueError("O campo detalhes deve ser uma lista de objetos.")
+    if not isinstance(data["relatos"], dict):
+        raise ValueError("O campo relatos deve ser um objeto JSON.")
+    relatos = {}
+    for nome, referencia in data["relatos"].items():
+        nome = texto(nome)
+        if nome in relatos:
+            raise ValueError("Nomes de relatos duplicados após remover espaços.")
+        relatos[nome] = texto(referencia)
     if len(relatos) < 2:
         raise ValueError("Inclua pelo menos dois relatos.")
     matriz, comuns, exclusivos = [], [], {}
@@ -55,3 +66,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
