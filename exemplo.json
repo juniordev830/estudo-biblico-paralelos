@@ -1,0 +1,23 @@
+{
+  "relatos": {
+    "mateus": "Mateus 14:13–21",
+    "marcos": "Marcos 6:30–44",
+    "joao": "João 6:1–15"
+  },
+  "detalhes": [
+    {
+      "item": "Cinco pães e dois peixes",
+      "em": [
+        "mateus",
+        "marcos",
+        "joao"
+      ]
+    },
+    {
+      "item": "Menção ao rapaz",
+      "em": [
+        "joao"
+      ]
+    }
+  ]
+}

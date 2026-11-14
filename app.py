@@ -1,0 +1,57 @@
+'Monte uma matriz para comparar detalhes que o leitor identificou em relatos paralelos.'
+
+
+def texto(value):
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("Use texto não vazio.")
+    return value.strip()
+
+
+def textos(items):
+    if not isinstance(items, list):
+        raise ValueError("Use uma lista de textos.")
+    return [texto(item) for item in items]
+
+
+def run(data):
+    relatos = {texto(k): texto(v) for k, v in data["relatos"].items()}
+    if len(relatos) < 2:
+        raise ValueError("Inclua pelo menos dois relatos.")
+    matriz, comuns, exclusivos = [], [], {}
+    for detalhe in data["detalhes"]:
+        item = texto(detalhe["item"])
+        em = set(textos(detalhe["em"]))
+        if not em or em - relatos.keys():
+            raise ValueError("Cada detalhe deve apontar para relatos registrados.")
+        matriz.append({"item": item, "presenca": {nome: nome in em for nome in relatos}})
+        if len(em) == len(relatos):
+            comuns.append(item)
+        if len(em) == 1:
+            exclusivos.setdefault(next(iter(em)), []).append(item)
+    return {"relatos": relatos, "matriz": matriz, "comuns": comuns, "exclusivos": exclusivos}
+
+
+import argparse
+import json
+from pathlib import Path
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("entrada", type=Path, help="Arquivo JSON com os dados")
+    args = parser.parse_args()
+
+    try:
+        with args.entrada.open(encoding="utf-8") as source:
+            data = json.load(source)
+        if not isinstance(data, dict):
+            raise ValueError("A entrada deve ser um objeto JSON.")
+        result = run(data)
+    except (KeyError, TypeError, ValueError, OSError) as exc:
+        parser.exit(2, f"Erro nos dados ou na execução: {exc}\n")
+
+    print(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False))
+
+
+if __name__ == "__main__":
+    main()
