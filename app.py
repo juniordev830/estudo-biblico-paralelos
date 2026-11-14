@@ -14,6 +14,12 @@ def textos(items):
 
 
 def run(data):
+    if not isinstance(data, dict):
+        raise ValueError("A entrada deve ser um objeto JSON.")
+    if not isinstance(data["detalhes"], list) or any(not isinstance(item, dict) for item in data["detalhes"]):
+        raise ValueError("O campo detalhes deve ser uma lista de objetos.")
+    if not isinstance(data["relatos"], dict):
+        raise ValueError("O campo relatos deve ser um objeto JSON.")
     relatos = {texto(k): texto(v) for k, v in data["relatos"].items()}
     if len(relatos) < 2:
         raise ValueError("Inclua pelo menos dois relatos.")
@@ -55,3 +61,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
