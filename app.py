@@ -13,6 +13,11 @@ def textos(items):
     return [texto(item) for item in items]
 
 
+def chave_relato(nome):
+    normalizado = normalize("NFKD", texto(nome).casefold())
+    return " ".join("".join(c for c in normalizado if not combining(c)).split())
+
+
 def run(data):
     if not isinstance(data, dict):
         raise ValueError("A entrada deve ser um objeto JSON.")
@@ -21,19 +26,23 @@ def run(data):
     if not isinstance(data["relatos"], dict):
         raise ValueError("O campo relatos deve ser um objeto JSON.")
     relatos = {}
+    nomes_por_chave = {}
     for nome, referencia in data["relatos"].items():
-        nome = texto(nome)
-        if nome in relatos:
-            raise ValueError("Nomes de relatos duplicados após remover espaços.")
-        relatos[nome] = texto(referencia)
+        exibicao = texto(nome)
+        chave = chave_relato(exibicao)
+        if chave in nomes_por_chave:
+            raise ValueError("Nomes de relatos duplicados após normalização.")
+        nomes_por_chave[chave] = exibicao
+        relatos[exibicao] = texto(referencia)
     if len(relatos) < 2:
         raise ValueError("Inclua pelo menos dois relatos.")
     matriz, comuns, exclusivos = [], [], {}
     for detalhe in data["detalhes"]:
         item = texto(detalhe["item"])
-        em = set(textos(detalhe["em"]))
-        if not em or em - relatos.keys():
+        chaves = {chave_relato(nome) for nome in textos(detalhe["em"])}
+        if not chaves or chaves - nomes_por_chave.keys():
             raise ValueError("Cada detalhe deve apontar para relatos registrados.")
+        em = {nomes_por_chave[chave] for chave in chaves}
         matriz.append({"item": item, "presenca": {nome: nome in em for nome in relatos}})
         if len(em) == len(relatos):
             comuns.append(item)
@@ -45,6 +54,7 @@ def run(data):
 import argparse
 import json
 from pathlib import Path
+from unicodedata import combining, normalize
 
 
 def main():
