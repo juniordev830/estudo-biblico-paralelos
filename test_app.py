@@ -15,6 +15,20 @@ class ProjetoTest(unittest.TestCase):
         result = run(data)
         self.assertEqual(result['comuns'], ['Cinco pães e dois peixes'])
 
+    def test_consulta_relato_com_acentos_e_espacos_diferentes(self):
+        data = {
+            "relatos": {"João": "João 6", "Marcos": "Marcos 6"},
+            "detalhes": [{"item": "Pães", "em": [" joao ", "MARCOS"]}],
+        }
+        result = run(data)
+        self.assertEqual(result["comuns"], ["Pães"])
+        self.assertEqual(result["matriz"][0]["presenca"], {"João": True, "Marcos": True})
+
+    def test_rejeita_nomes_ambiguos_de_relato(self):
+        data = {"relatos": {"João": "João 6", "JOAO": "João 7"}, "detalhes": []}
+        with self.assertRaisesRegex(ValueError, "duplicados"):
+            run(data)
+
     def test_cli_com_exemplo(self):
         result = subprocess.run(
             [sys.executable, str(ROOT / "app.py"), str(ROOT / "exemplo.json")],
