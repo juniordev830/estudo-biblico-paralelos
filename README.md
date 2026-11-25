@@ -28,3 +28,8 @@ Também é possível encadear a ferramenta com outro comando usando `-` como ent
 ```bash
 cat exemplo.json | python app.py -
 ```
+
+
+## Novo recurso
+
+Com `diagnostico: true`, inclui totais, exclusivos e percentual de detalhes registrados por relato. São estatísticas das anotações do leitor, não prova de ausência de detalhes no texto bíblico.
