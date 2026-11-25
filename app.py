@@ -48,7 +48,21 @@ def run(data):
             comuns.append(item)
         if len(em) == 1:
             exclusivos.setdefault(next(iter(em)), []).append(item)
-    return {"relatos": relatos, "matriz": matriz, "comuns": comuns, "exclusivos": exclusivos}
+    resultado = {"relatos": relatos, "matriz": matriz, "comuns": comuns, "exclusivos": exclusivos}
+    diagnostico = data.get("diagnostico", False)
+    if type(diagnostico) is not bool:
+        raise ValueError("diagnostico deve ser booleano.")
+    if diagnostico:
+        total = len(matriz)
+        resultado["estatisticas"] = {}
+        for nome in relatos:
+            quantidade = sum(item["presenca"][nome] for item in matriz)
+            resultado["estatisticas"][nome] = {
+                "observados": quantidade, "nao_registrados": total - quantidade,
+                "exclusivos": len(exclusivos.get(nome, [])),
+                "percentual_registrado": round(100 * quantidade / total, 1) if total else 0.0
+            }
+    return resultado
 
 
 import argparse
